@@ -43,6 +43,15 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    //testing cred
+    _emailCtrl.text = "admin@superapp.com";
+    _passCtrl.text = "Admin@123";
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

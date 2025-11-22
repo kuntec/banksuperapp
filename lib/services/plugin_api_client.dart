@@ -11,8 +11,8 @@ class PluginApiClient {
       throw Exception('No auth token');
     }
 
-    final uri = Uri.parse('${AppConfig.baseUrl}/api/plugins/my');
-
+    // final uri = Uri.parse('${AppConfig.baseUrl}/api/plugins/my');
+    final uri = Uri.parse('http://localhost:8888/BankPlugin.json');
     final response = await http.get(
       uri,
       headers: {
