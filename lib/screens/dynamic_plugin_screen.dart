@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:superbankapp/dynamic_engine/navigation_engine.dart';
 import 'package:superbankapp/dynamic_engine/screen_renderer.dart';
+import 'package:superbankapp/services/secure_storage_service.dart';
 
 class DynamicPluginScreen extends StatefulWidget {
   final Map<String, dynamic> pluginConfig;
@@ -21,13 +22,19 @@ class _DynamicPluginScreenState extends State<DynamicPluginScreen> {
   void initState() {
     super.initState();
     _navigation = DynamicNavigationEngine(widget.pluginConfig);
+//    saveEmail();
   }
+
+  // //set email to context store
+  // void saveEmail() async {
+  //   final email = await SecureStorageService.getThirdPartyToken("email");
+  //   _navigation.contextStore.setValue("context.bill.customer_email", email);
+  // }
 
   @override
   Widget build(BuildContext context) {
     // Attach context so snackbars/dialogs can work from the engines
     _navigation.attachContext(context);
-
     return ValueListenableBuilder<String>(
       valueListenable: _navigation.currentScreenId,
       builder: (context, screenId, _) {

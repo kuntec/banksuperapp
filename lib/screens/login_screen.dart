@@ -3,6 +3,7 @@ import 'package:superbankapp/dynamic_engine/context_store.dart';
 import 'package:superbankapp/dynamic_engine/navigation_engine.dart';
 import 'package:superbankapp/screens/home_screen.dart';
 import 'package:superbankapp/services/auth_service.dart';
+import 'package:superbankapp/services/secure_storage_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,6 +36,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (success) {
       contextStore.setValue("email", _emailCtrl.text.trim());
+      //save to secure storage
+      await SecureStorageService.saveThirdPartyToken(
+          "email", _emailCtrl.text.trim());
 
       print(contextStore.getValue("email"));
       Navigator.pushReplacement(

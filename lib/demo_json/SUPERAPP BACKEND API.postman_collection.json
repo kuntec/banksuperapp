@@ -1,0 +1,132 @@
+{
+	"info": {
+		"_postman_id": "d29bb0ac-7f2b-4a18-8790-93aaa7cc32fe",
+		"name": "SUPERAPP BACKEND API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "1428099"
+	},
+	"item": [
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\n  \"email\": \"admin@superapp.com\",\n  \"password\": \"Admin@123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "addPlugin",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"slug\": \"credit_card_application\",\n  \"name\": \"Credit Card Application\",\n  \"description\": \"Apply for new credit card\",\n  \"icon\": \"https://example.com/icons/credit.png\",\n  \"enabled\": true,\n  \"allowedRoles\": [\"ADMIN\", \"USER\"],\n  \"uiConfig\": \"{ \\\"type\\\": \\\"form\\\", \\\"fields\\\": [] }\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/plugins",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"plugins"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/api/plugins/my",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBzdXBlcmFwcC5jb20iLCJpYXQiOjE3NjM2MjQzNDMsImV4cCI6MTc2MzcxMDc0M30.hcY1iQYTN9o9OKz0t9rAfkyFUTqG9ezjwqyZn3V06Ck",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/plugins/my",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"plugins",
+						"my"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/api/plugins/config/credit_card_application",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBzdXBlcmFwcC5jb20iLCJpYXQiOjE3NjM2MjQzNDMsImV4cCI6MTc2MzcxMDc0M30.hcY1iQYTN9o9OKz0t9rAfkyFUTqG9ezjwqyZn3V06Ck",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/plugins/config/credit_card_application",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"plugins",
+						"config",
+						"credit_card_application"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
