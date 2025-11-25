@@ -10,9 +10,9 @@ class PluginApiClient {
     if (token == null) {
       throw Exception('No auth token');
     }
-
     // final uri = Uri.parse('${AppConfig.baseUrl}/api/plugins/my');
-    final uri = Uri.parse('http://localhost:8888/BankPlugin.json');
+    final uri = Uri.parse('http://localhost:8888/plugin.json');
+    print(uri.toString());
     final response = await http.get(
       uri,
       headers: {
@@ -20,6 +20,8 @@ class PluginApiClient {
         'Content-Type': 'application/json',
       },
     );
+
+    print(response.body);
 
     if (response.statusCode != 200) {
       throw Exception('Failed to load plugins: ${response.statusCode}');

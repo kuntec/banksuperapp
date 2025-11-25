@@ -15,4 +15,12 @@ class SecureStorageService {
   static Future<void> clearToken() async {
     await _storage.delete(key: _keyToken);
   }
+
+  static Future<void> saveThirdPartyToken(String key, String token) async {
+    await _storage.write(key: key, value: token);
+  }
+
+  static Future<String?> getThirdPartyToken(String key) async {
+    return _storage.read(key: key);
+  }
 }

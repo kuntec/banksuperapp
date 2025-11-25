@@ -1,80 +1,88 @@
 import 'dart:convert';
 
 import 'package:superbankapp/models/plugin_node.dart';
+import 'package:superbankapp/models/plugin_registry.dart';
 
 class PluginNodeParser {
   static List<PluginNode> parseRoot(String jsonString) {
     final decoded = json.decode(jsonString) as Map<String, dynamic>;
 
     if (decoded['success'] != true) {
-      throw Exception('API returned success=false');
+      throw Exception("Plugin API returned success=false");
     }
 
-    final List<dynamic> dataList = decoded['data'] ?? [];
-    return dataList.map<PluginNode>((item) {
-      return _parseRootItem(item as Map<String, dynamic>);
-    }).toList();
+    if (decoded['data'] == null ||
+        decoded['data'] is! Map ||
+        decoded['data']['plugins'] == null) {
+      throw Exception("Invalid plugin JSON: missing data.plugins[]");
+    }
+
+    final List<dynamic> pluginsJson = decoded['data']['plugins'];
+
+    // Parse each plugin
+    final List<PluginNode> nodes = pluginsJson
+        .map((p) => _parseEnterprisePlugin(p as Map<String, dynamic>))
+        .toList();
+
+    // Register plugins globally so menus can resolve children
+    PluginRegistry.registerAll(nodes);
+
+    return nodes;
   }
 
-  static PluginNode _parseRootItem(Map<String, dynamic> json) {
-    final typeStr = (json['type'] ?? '').toString().toLowerCase();
-    final type =
-        typeStr == 'menu' ? PluginNodeType.menu : PluginNodeType.plugin;
+  // ---------------------------------------------------------------------------
+  // PARSE ENTERPRISE PLUGIN
+  // ---------------------------------------------------------------------------
+  static PluginNode _parseEnterprisePlugin(Map<String, dynamic> json) {
+    final pluginId = json['plugin_id']?.toString() ?? '';
+    final typeStr = json['type']?.toString().toLowerCase() ?? 'plugin';
 
-    if (type == PluginNodeType.menu) {
+    final bool isMenu = typeStr == 'menu';
+
+    if (isMenu) {
+      /// Menu node → only contains a list of child plugin IDs
+      final List<String> childIds = [];
+
       final childrenJson = json['children'] as List<dynamic>? ?? [];
-
-      final children = childrenJson
-          .map<PluginNode>((child) => _parseChildPlugin(child))
-          .toList();
+      for (final c in childrenJson) {
+        if (c is Map<String, dynamic>) {
+          final cid = c['plugin_id']?.toString();
+          if (cid != null) childIds.add(cid);
+        }
+      }
 
       return PluginNode(
-        slug: json['slug']?.toString() ?? '',
-        name: json['name']?.toString() ?? '',
+        pluginId: pluginId,
+        name: json['name']?.toString() ?? pluginId,
         description: json['description']?.toString(),
         icon: json['icon']?.toString(),
-        enabled: json['enabled'] == true,
+        enabled: json['enabled'] == true || json['enabled'] == null,
         type: PluginNodeType.menu,
-        children: children,
-      );
-    } else {
-      final pluginConfig = <String, dynamic>{
-        'plugin_slug': json['slug'],
-        'version': json['version'] ?? '1.0.0',
-        'screens': json['screens'] ?? [],
-        'apis': json['apis'] ?? [],
-        'flow': json['flow'] ?? [],
-      };
-
-      return PluginNode(
-        slug: json['slug']?.toString() ?? '',
-        name: json['name']?.toString() ?? '',
-        description: json['description']?.toString(),
-        icon: json['icon']?.toString(),
-        enabled: json['enabled'] == true,
-        type: PluginNodeType.plugin,
-        pluginConfig: pluginConfig,
+        childPluginIds: childIds,
+        pluginConfig: null,
       );
     }
-  }
 
-  static PluginNode _parseChildPlugin(Map<String, dynamic> json) {
-    final slug = json['plugin_slug']?.toString() ?? '';
-
+    // Plugin node → contains screens, actions, apis, metadata, routes
     final pluginConfig = <String, dynamic>{
-      'plugin_slug': slug,
-      'version': json['version'] ?? '1.0.0',
-      'screens': json['screens'] ?? [],
-      'apis': json['apis'] ?? [],
-      'flow': json['flow'] ?? [],
+      "plugin_id": pluginId,
+      "name": json["name"],
+      "routes": json["routes"] ?? [],
+      "screens": json["screens"] ?? [],
+      "actions": json["actions"] ?? [],
+      "apis": json["apis"] ?? [],
+      "metadata": json["metadata"] ?? {},
+      "version": json["version"] ?? "1.0.0",
     };
+
     return PluginNode(
-      slug: slug,
-      name: slug,
-      description: null,
-      icon: null,
+      pluginId: pluginId,
+      name: json['name']?.toString() ?? pluginId,
+      description: json['description']?.toString(),
+      icon: json['icon']?.toString(),
       enabled: true,
       type: PluginNodeType.plugin,
+      childPluginIds: const [],
       pluginConfig: pluginConfig,
     );
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:superbankapp/dynamic_engine/context_store.dart';
+import 'package:superbankapp/dynamic_engine/navigation_engine.dart';
 import 'package:superbankapp/screens/home_screen.dart';
 import 'package:superbankapp/services/auth_service.dart';
 
@@ -15,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passCtrl = TextEditingController();
   bool _isLoading = false;
   final _authService = AuthService();
+  final DynamicContextStore contextStore = DynamicContextStore();
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -31,6 +34,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
+      contextStore.setValue("email", _emailCtrl.text.trim());
+
+      print(contextStore.getValue("email"));
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
