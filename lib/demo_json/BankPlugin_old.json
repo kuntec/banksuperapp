@@ -1,0 +1,623 @@
+{
+    "success": true,
+    "message": "User plugins",
+    "data": [
+        {
+            "slug": "Bill_Payment",
+            "name": "Bill Payments",
+            "description": "Apply for new credit card",
+            "icon": "https://example.com/icons/credit.png",
+            "enabled": true,
+            "type": "Menu",
+            "children": [
+                {
+                    "plugin_slug": "plugin_1",
+                    "name": "Plugin 1",
+                    "description": "This is the first plugin of the menu",
+                    "version": "1.0.0",
+                    "screens": [
+                        {
+                            "screen_id": "enter_customer",
+                            "title": "Bill Payment",
+                            "type": "form",
+                            "fields": [
+                              {
+                                "type": "text",
+                                "name": "customer_id",
+                                "label": "Customer ID",
+                                "placeholder": "Please enter your customer ID",
+                                "trans_placeholder_custid": "",
+                                "required": true
+                              },
+                              {
+                                "type": "text",
+                                "name": "customer_email",
+                                "label": "Customer Email",
+                                "placeholder": "Please enter your customer Email",
+                                "trans_placeholder_custemail": "",
+                                "required": true
+                              }
+                            ],
+                            "actions": [
+                              {
+                                "type": "api_call",
+                                "api_id": "fetch_bill_details",
+                                "label": "Fetch Bill",
+                                "trans_label_fetchbill": "",
+                                "style": "primary"
+                              },
+                              {
+                                "type": "navigate",
+                                "target": "customer_search",
+                                "label": "Search Customer",
+                                "trans_label_searchcust": ""
+                              },
+                            
+                              {
+                                "type": "api_call",
+                                "api_id": "fetch_bill_details",
+                                "label": "Fetch Bill",
+                                "style": "primary"
+                              }
+                            ]
+                          },                          
+                          {
+                            "screen_id": "bill_details",
+                            "title": "Bill Details",
+                            "type": "details",
+                            "fields": [
+                              
+                              {
+                                "type": "textview",
+                                "label": "Customer Name",
+                                "value_key": "customer_name"
+                              },
+                              {
+                                "type": "textview",
+                                "label": "Bill Amount",
+                                "value_key": "bill_amount"
+                              }
+                            ],
+                            "actions": [
+                              {
+                                "type": "navigate",
+                                "target": "enter_pin",
+                                "label": "Proceed to Payment",
+                                "style": "primary"
+                              }
+                            ]
+                          },  
+                          {
+                            "screen_id": "account_list",
+                            "title": "Accounts",
+                            "type": "list",
+                            "fields": [
+                              {
+                                "type": "textview",
+                                "label": "Account Name",
+                                "value_key": "account_name"
+                              },
+                              {
+                                "type": "textview",
+                                "label": "Account Number",
+                                "value_key": "account_number"
+                              }
+                            ]
+                          },   
+                          {
+                            "screen_id": "enter_pin",
+                            "title": "Authorization",
+                            "type": "form",
+                            "fields": [
+                              
+                              {
+                                "type": "textview",
+                                "label": "Customer Name",
+                                "value_key": "customer_id"
+                              },
+                              {
+                                "type": "textview",
+                                "label": "Customer Name",
+                                "value_key": "customer_name"
+                              },
+                              {
+                                "type": "textview",
+                                "label": "Bill Amount",
+                                "value_key": "bill_amount"
+                              },
+                              {
+                                "type": "",
+                                "name": "customer_id",
+                                "label": "Customer ID",
+                                "required": true
+                              },
+                              {
+                                "type": "text",
+                                "name": "email",
+                                "label": "Customer Email",
+                                "value_key": "email"
+                              },
+                              {
+                                "type": "text",
+                                "name": "password",
+                                "label": "Customer Password",
+                                "value_key": "password"
+                              }
+                             
+
+                            ],
+                            "actions": [
+                              {
+                                "type": "api_call",
+                                "api_id": "authorize_payment",
+                                "label": "Pay Now",
+                                "style": "primary"
+                              },
+                              {
+                                "type": "action_sequence",
+                                "label": "Get My Accounts",
+                                "steps":[
+                                  { "order": 1,
+                                    "type": "api_call",
+                                    "api_id": "fetch_accounts"
+                                  },
+                                  {
+                                    "order": 2,
+                                    "type": "dialog",
+                                    "message": "Accounts fetched successfully",
+                                    "target": "account_list"
+                                  }
+                                ]
+                              },
+                              {
+                                "type": "action_sequence",
+                                "label": "Pay Now",
+                                "steps": [
+                                  { "order": 1,
+                                    "type": "api_call",
+                                    "api_id": "validate_customer"
+                                  },
+                                  {
+                                    "order": 2,
+                                    "type": "toast",
+                                    "message": "Customer validated"
+                                  },
+                                  {
+                                    "order": 3,
+                                    "type": "api_call",
+                                    "api_id": "fetch_billing_cycle"
+                                  },
+                                  {"order": 4,
+                                    "type": "label_update",
+                                    "target": "cycle_label",
+                                    "value_key": "billing_cycle"
+                                  },
+                                  {"order": 5,
+                                    "type": "api_call",
+                                    "api_id": "fetch_outstanding_bill"
+                                  },
+                                  {"order": 6,
+                                    "type": "dialog",
+                                    "message": "Bill fetched successfully"
+                                  },
+                                  {"order": 7,
+                                    "type": "navigate",
+                                    "target": "bill_summary_screen"
+                                  }                                  
+                                ]
+                              }
+                            ]
+                          },{
+                            "screen_id": "payment_result",
+                            "title": "Payment Result",
+                            "type": "form",
+                            "success_message_key": "success_msg",
+                            "failure_message_key": "error_msg",
+                            "fields": [
+                              {
+                                "type": "textview",
+                                "label": "Success",
+                                "value_key": "response_msg"
+                              },
+                  
+                              {
+                                "type": "text",
+                                "name": "sample_text",
+                                "label": "Payment Result",
+                                "required": true,
+                                "minLength": 4,
+                                "maxLength": 4
+                              }
+                            ]
+                          },{
+                            "screen_id": "error_screen",
+                            "title": "Error Screen",
+                            "type": "form",
+                            "success_message_key": "success_msg",
+                            "failure_message_key": "error_msg",
+                            "fields": [
+                              {
+                                "type": "textview",
+                                "label": "Success",
+                                "value_key": "response_msg"
+                              }
+                            ]
+                          }
+                          
+                                           
+
+                    ],
+                    "apis": [
+                      {
+                        "id": "tp1_login",
+                        "method": "POST",
+                        "success": true,
+                        "type":"tp_api_call",
+                        "endpoint": "http://localhost:8080/thirdparty/login",
+                        "on_success":"payment_call",
+                        "on_failure":"error_screen",
+                        "request_mapping": {
+                          "email": "email",
+                          "password": "password"
+                        },
+                        "response_mapping": {
+                          "token": "token",
+                          "response_msg": "message"
+                        }
+                      },
+                      {
+                        "id": "third_party_api1",
+                        "method": "POST",
+                        "success": true,
+                        "type":"tp_api_call",
+                        "endpoint": "http://localhost:8888/response.json",
+                        "on_success":"bill_details",
+                        "on_failure":"payment_result",
+                        "header": {
+                          "Content-Type": "application/json",
+                          "Authorization": "bearer",
+                          "creds": {
+                            "ips_username": "string",
+                            "ips_password": "string"
+                          }
+                        },
+                        "request_mapping": {
+                          "customer_id": "string"
+                        },
+                        "response_mapping": {
+                          "customer_name": "data.customerName",
+                          "bill_amount": "data.amount"                             
+                        }
+                      },
+                        {
+                            "id": "fetch_bill_details",
+                            "method": "POST",
+                            "success": true,
+                            "type":"screen",
+                            "endpoint": "http://localhost:8888/response.json",
+                            "on_success":"bill_details",
+                            "on_failure":"payment_result",
+                            "request_mapping": {
+                              "customer_id": "string"
+                            },
+                            "response_mapping": {
+                              "customer_name": "data.customerName",
+                              "bill_amount": "data.amount"                             
+                            }
+                          },
+                          {
+                            "id": "authorize_payment",
+                            "method": "POST",
+                            "success": true,
+                            "type":"api_call",
+                            "endpoint": "http://localhost:8080/api/auth/login",
+                            "on_success":"payment_call",
+                            "on_failure":"error_screen",
+                            "request_mapping": {
+                              "email": "email",
+                              "password": "password"
+                            },
+                            "response_mapping": {
+                              "response_msg": "message"
+                            }
+                          },{
+                            "id": "payment_call",
+                            "method": "POST",
+                            "success": true,
+                            "type":"page",
+                            "endpoint": "http://localhost:8888/paymentResponse.json",
+                            "on_success":"success_screen",
+                            "on_failure":"error_screen",
+                            "request_mapping": {
+                              "customer_id": "string",
+                              "account_no": "string",
+                              "amount": "string"
+                            },
+                            "response_mapping": {
+                              "customer_name": "data.customerName",
+                              "bill_amount": "data.amount"                             
+                            }
+                          }, {
+                            "id": "validate_customer",
+                            "method": "POST",
+                            "success": true,
+                            "type":"toast",
+                            "endpoint": "http://localhost:8080/api/validate/customer",
+                            "on_success":"success_screen",
+                            "on_failure":"error_screen",
+                            "request_mapping": {
+                              "email": "email",
+                              "password": "password"
+                            },
+                            "response_mapping": {
+                              "response_msg": "message"
+                            }
+                          }                     
+                    ],
+                    "flow": [
+                      { "from": "enter_customer", "on_success": "bill_details" },
+                      { "from": "bill_details", "on_click": "enter_pin" },
+                      { "from": "enter_pin", "on_success": "payment_result" }
+                    ]
+                  }, 
+                  
+                  {"plugin_slug": "Plugin 2",
+                    "name": "Plugin 2",
+                    "description": "This is the second plugin of the menu",
+                    "version": "1.0.0",
+                    "screens": [
+                        {
+                            "screen_id": "enter_customer",
+                            "title": "Bill Payment",
+                            "type": "form",
+                            "fields": [
+                              {
+                                "type": "text",
+                                "name": "customer_id",
+                                "label": "Customer ID",
+                                "placeholder": "Enter Customer ID",
+                                "required": true
+                              }
+                            ],
+                            "actions": [
+                              {
+                                "type": "api_call",
+                                "api_id": "fetch_bill_details",
+                                "label": "Fetch Bill",
+                                "style": "primary"
+                              }
+                            ]
+                          },                          
+                          {
+                            "screen_id": "bill_details",
+                            "title": "Bill Details",
+                            "type": "details",
+                            "fields": [
+                              {
+                                "type": "textview",
+                                "label": "Customer Name",
+                                "value_key": "fullName"
+                              },
+                              {
+                                "type": "textview",
+                                "label": "Customer Name",
+                                "value_key": "customerName"
+                              },
+                              {
+                                "type": "textview",
+                                "label": "Bill Amount",
+                                "value_key": "amount"
+                              }
+                            ],
+                            "actions": [
+                              {
+                                "type": "navigate",
+                                "target": "enter_pin",
+                                "label": "Proceed to Payment",
+                                "style": "primary"
+                              }
+                            ]
+                          },     
+                          {
+                            "screen_id": "enter_pin",
+                            "title": "Authorization",
+                            "type": "form",
+                            "fields": [
+                              {
+                                "type": "pin",
+                                "name": "payment_pin",
+                                "label": "Enter 4-digit PIN",
+                                "required": true,
+                                "minLength": 4,
+                                "maxLength": 4
+                              }
+                            ],
+                            "actions": [
+                              {
+                                "type": "api_call",
+                                "api_id": "authorize_payment",
+                                "label": "Pay Now",
+                                "style": "primary"
+                              }
+                            ]
+                          },{
+                            "screen_id": "payment_result",
+                            "title": "Payment Result",
+                            "type": "dialog",
+                            "success_message_key": "success_msg",
+                            "failure_message_key": "error_msg"
+                          }
+                          
+                                           
+
+                    ],
+                    "apis": [
+                        {
+                            "id": "fetch_bill_details",
+                            "method": "POST",
+                            "endpoint": "/api/bill/fetch",
+                            "request_schema": {
+                              "customer_id": "string"
+                            },
+                            "response_mapping": {
+                              "customerName": "data.customerName",
+                              "amount": "data.amount",
+                              "fullName": "data.user.fullName"
+                            }
+                          },
+                          {
+                            "id": "authorize_payment",
+                            "method": "POST",
+                            "endpoint": "/api/bill/pay",
+                            "request_schema": {
+                              "payment_pin": "string"
+                            },
+                            "response_mapping": {
+                              "success_msg": "data.message",
+                              "error_msg": "error"
+                            }
+                          }                      
+                    ],
+                    "flow": [
+                      { "from": "enter_customer", "on_success": "bill_details" },
+                      { "from": "bill_details", "on_click": "enter_pin" },
+                      { "from": "enter_pin", "on_success": "payment_result" }
+                    ]
+                }
+            ]
+    
+        },
+        {
+            "slug": "transfer_payments",
+            "name": "Transfer Payments",
+            "description": "Apply for new credit card",
+            "icon": "https://example.com/icons/credit.png",
+            "enabled": true,
+            "type":"Menu",
+            "children":[
+                {}, {}
+            ]
+    
+        },
+        {
+            "slug": "plugin_5",
+            "name": "Plugin 5",
+            "description": "Apply for new credit card",
+            "icon": "https://example.com/icons/credit.png",
+            "enabled": true,
+            "type":"plugin",
+            "screens": [
+                        {
+                            "screen_id": "enter_customer",
+                            "title": "Bill Payment",
+                            "type": "form",
+                            "fields": [
+                              {
+                                "type": "text",
+                                "name": "customer_id",
+                                "label": "Customer ID",
+                                "placeholder": "Enter Customer ID",
+                                "required": true
+                              }
+                            ],
+                            "actions": [
+                              {
+                                "type": "api_call",
+                                "api_id": "fetch_bill_details",
+                                "label": "Fetch Bill",
+                                "style": "primary"
+                              }
+                            ]
+                          },                          
+                          {
+                            "screen_id": "bill_details",
+                            "title": "Bill Details",
+                            "type": "details",
+                            "fields": [
+                              {
+                                "type": "textview",
+                                "label": "Customer Name",
+                                "value_key": "customer_name"
+                              },
+                              {
+                                "type": "textview",
+                                "label": "Bill Amount",
+                                "value_key": "bill_amount"
+                              }
+                            ],
+                            "actions": [
+                              {
+                                "type": "navigate",
+                                "target": "enter_pin",
+                                "label": "Proceed to Payment",
+                                "style": "primary"
+                              }
+                            ]
+                          },     
+                          {
+                            "screen_id": "enter_pin",
+                            "title": "Authorization",
+                            "type": "form",
+                            "fields": [
+                              {
+                                "type": "pin",
+                                "name": "payment_pin",
+                                "label": "Enter 4-digit PIN",
+                                "required": true,
+                                "minLength": 4,
+                                "maxLength": 4
+                              }
+                            ],
+                            "actions": [
+                              {
+                                "type": "api_call",
+                                "api_id": "authorize_payment",
+                                "label": "Pay Now",
+                                "style": "primary"
+                              }
+                            ]
+                          },{
+                            "screen_id": "payment_result",
+                            "title": "Payment Result",
+                            "type": "dialog",
+                            "success_message_key": "success_msg",
+                            "failure_message_key": "error_msg"
+                          }
+                          
+                                           
+
+                    ],
+                    "apis": [
+                        {
+                            "id": "fetch_bill_details",
+                            "method": "POST",
+                            "endpoint": "/api/bill/fetch",
+                            "request_schema": {
+                              "customer_id": "string"
+                            },
+                            "response_mapping": {
+                              "customer_name": "data.customerName",
+                              "bill_amount": "data.amount"
+                            }
+                          },
+                          {
+                            "id": "authorize_payment",
+                            "method": "POST",
+                            "endpoint": "/api/bill/pay",
+                            "request_schema": {
+                              "payment_pin": "string"
+                            },
+                            "response_mapping": {
+                              "success_msg": "data.message",
+                              "error_msg": "error"
+                            }
+                          }                      
+                    ],
+                    "flow": [
+                      { "from": "enter_customer", "on_success": "bill_details" },
+                      { "from": "bill_details", "on_click": "enter_pin" },
+                      { "from": "enter_pin", "on_success": "payment_result" }
+                    ]
+        }
+    ]
+}

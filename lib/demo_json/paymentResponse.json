@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "data": {
+    "message": "Payment completed successfully",
+    "transactionId": "TXN123456789",
+    "referenceNumber": "REF998877"
+  }
+}

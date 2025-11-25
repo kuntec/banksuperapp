@@ -1,0 +1,7 @@
+{
+  "success": true,
+  "data": {
+    "token": "abc123-payment-auth-token",
+    "message": "Authorization successful"
+  }
+}

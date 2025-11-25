@@ -1,0 +1,8 @@
+{
+  "data": {
+    "accounts": [
+      { "account_name": "Savings A", "account_number": "12345" },
+      { "account_name": "Salary B", "account_number": "98765" }
+    ]
+  }
+}
