@@ -1,0 +1,208 @@
+/// success : true
+/// message : "User plugins"
+/// data : {"plugins":[{"plugin_id":"payment_module","name":"Payment Module","description":"Multiple plugins for payments","type":"menu","icon":"https://example.com/icons/credit.png","children":[{"plugin_id":"bill_payment","display_name":"Bill Payment","description":"Pay utility or service bills"}]},{"plugin_id":"bill_payment","name":"Bill Payment","description":"This is the bill payment plugin","version":"1.0.0","type":"plugin","metadata":{"category":"payments","roles_allowed":["Admin","admin"],"default_route_id":"default"},"routes":[{"route_id":"default","entry_screen_id":"enter_customer"}],"screens":[{"screen_id":"enter_customer","title":{"en":"Customer Details","ar":"بيانات العميل"},"type":"form","on_load_action_id":null,"widgets":[{"widget_id":"customer_email","type":"textview","label":{"en":"Customer Email","ar":"بريد العميل"},"value_binding":"context.bill.customer_email"},{"widget_id":"customer_id_field","type":"text_input","name":"customer_id","label":{"en":"Customer ID","ar":"رقم العميل"},"placeholder":{"en":"Please enter your customer ID"},"required":true,"binds_to":"context.bill.customer_id"},{"widget_id":"fetch_bill_button","type":"button","label":{"en":"Fetch Bill"},"style":"primary","on_tap_action_id":"fetch_bill_flow"},{"widget_id":"search_customer_button","type":"button","label":{"en":"Search Customer"},"style":"secondary","on_tap_action_id":"load_customer_search"},{"widget_id":"my_accounts_button","type":"button","label":{"en":"My Accounts"},"style":"secondary","on_tap_action_id":"load_accounts"}]},{"screen_id":"bill_details","title":{"en":"Bill Details","ar":"تفاصيل الفاتورة"},"type":"details","widgets":[{"widget_id":"customer_name_label","type":"textview","label":{"en":"Customer Name","ar":"اسم العميل"},"value_binding":"context.bill.customer_name"},{"widget_id":"bill_amount_label","type":"textview","label":{"en":"Bill Amount","ar":"مبلغ الفاتورة"},"value_binding":"context.bill.bill_amount"},{"widget_id":"billing_cycle_label","type":"textview","label":{"en":"Billing Cycle","ar":"دورة الفواتير"},"value_binding":"context.bill.billing_cycle","id":"cycle_label"},{"widget_id":"proceed_payment_button","type":"button","label":{"en":"Proceed to Payment"},"style":"primary","on_tap_action_id":"go_to_enter_pin"}]},{"screen_id":"customer_search","title":{"en":"List of Customers","ar":"قائمة العملاء"},"type":"list","list_source":"context.customer_search_results","item_template":[{"widget_id":"customer_name_item","type":"textview","label":{"en":"Customer Name","ar":"اسم العميل"},"value_binding":"item.customer_name"},{"widget_id":"customer_id_item","type":"textview","label":{"en":"Customer ID","ar":"رقم العميل"},"value_binding":"item.customer_id"}],"item_tap_action_id":"select_customer_from_list"},{"screen_id":"account_list","title":{"en":"My Accounts","ar":"حساباتي"},"type":"list","list_source":"context.accounts","item_template":[{"widget_id":"account_name_item","type":"textview","label":{"en":"Account Name"},"value_binding":"item.account_name"},{"widget_id":"account_number_item","type":"textview","label":{"en":"Account Number"},"value_binding":"item.account_number"}],"item_tap_action_id":"select_account_from_list"},{"screen_id":"enter_pin","title":{"en":"Authorization","ar":"التفويض"},"type":"form","widgets":[{"widget_id":"summary_customer_id","type":"textview","label":{"en":"Customer ID"},"value_binding":"context.bill.customer_id"},{"widget_id":"summary_customer_name","type":"textview","label":{"en":"Customer Name"},"value_binding":"context.bill.customer_name"},{"widget_id":"summary_bill_amount","type":"textview","label":{"en":"Bill Amount"},"value_binding":"context.bill.bill_amount"},{"widget_id":"payment_pin_field","type":"pin","name":"payment_pin","label":{"en":"Enter 4-digit PIN"},"required":true,"minLength":4,"maxLength":4,"binds_to":"context.bill.payment_pin"},{"widget_id":"pay_now_button","type":"button","label":{"en":"Pay Now"},"style":"primary","on_tap_action_id":"pay_now_flow"}]},{"screen_id":"payment_result","title":{"en":"Payment Result","ar":"نتيجة الدفع"},"type":"status","widgets":[{"widget_id":"payment_result_message","type":"textview","label":{"en":"Status"},"value_binding":"context.payment.response_msg"},{"widget_id":"back_to_home_button","type":"button","label":{"en":"Back to Customer Screen"},"style":"secondary","on_tap_action_id":"back_to_enter_customer"}]},{"screen_id":"error_screen","title":{"en":"Error","ar":"خطأ"},"type":"status","widgets":[{"widget_id":"error_message","type":"textview","label":{"en":"Error"},"value_binding":"context.last_error"},{"widget_id":"error_back_button","type":"button","label":{"en":"Try Again"},"style":"secondary","on_tap_action_id":"back_to_enter_customer"}]}],"actions":[{"action_id":"fetch_bill_flow","type":"sequence","steps":[{"step_id":"call_fetch_bill","type":"api_call","api_id":"fetch_bill_details","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Unable to fetch bill. Please check the Customer ID."}},"stop_sequence":true}},{"step_id":"call_cycle_api","type":"api_call","api_id":"fetch_billing_cycle","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Unable to Fetch Bill Cycle"}},"stop_sequence":true}},{"step_id":"go_to_bill_details","type":"navigate","target_screen_id":"bill_details"}]},{"action_id":"go_to_customer_search","type":"navigate","target_screen_id":"customer_search"},{"action_id":"go_to_account_list","type":"navigate","target_screen_id":"account_list"},{"action_id":"select_customer_from_list","type":"sequence","steps":[{"step_id":"set_selected_customer","type":"context_update","mapping":{"context.bill.customer_id":"item.customer_id","context.bill.customer_name":"item.customer_name"}},{"step_id":"back_to_enter_customer","type":"navigate","target_screen_id":"enter_customer"}]},{"action_id":"select_account_from_list","type":"context_update","mapping":{"context.bill.account_number":"item.account_number","context.bill.account_name":"item.account_name"}},{"action_id":"go_to_enter_pin","type":"navigate","target_screen_id":"enter_pin"},{"action_id":"back_to_enter_customer","type":"navigate","target_screen_id":"enter_customer"},{"action_id":"pay_now_flow","type":"sequence","steps":[{"step_id":"validate_customer_step","type":"api_call","api_id":"validate_customer","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Customer validation failed"}},"navigate_to":"error_screen","stop_sequence":true}},{"step_id":"customer_validated_toast","type":"ui_feedback","feedback_type":"toast","message":{"en":"Customer validated"}},{"step_id":"fetch_billing_cycle_step","type":"api_call","api_id":"fetch_billing_cycle"},{"step_id":"update_billing_cycle_label","type":"label_update","target_widget_id":"cycle_label","value_binding":"context.bill.billing_cycle"},{"step_id":"fetch_outstanding_bill_step","type":"api_call","api_id":"fetch_outstanding_bill"},{"step_id":"call_authorize_payment","type":"api_call","api_id":"authorize_payment","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Authorization failed"}},"stop_sequence":true}},{"step_id":"show_bill_fetched_dialog","type":"ui_feedback","feedback_type":"dialog","title":{"en":"Bill Fetched"},"message":{"en":"Bill details updated successfully."}},{"step_id":"call_payment_execution","type":"api_call","api_id":"payment_call","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Payment failed"}},"navigate_to":"error_screen","stop_sequence":true}},{"step_id":"navigate_to_payment_result","type":"navigate","target_screen_id":"payment_result"}]},{"action_id":"load_customer_search","type":"sequence","steps":[{"step_id":"api_get_customers","type":"api_call","api_id":"fetch_customers","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Failed to fetch customers"}},"stop_sequence":true}},{"step_id":"go_to_customer_list","type":"navigate","target_screen_id":"customer_search"}]},{"action_id":"load_accounts","type":"sequence","steps":[{"step_id":"api_get_accounts","type":"api_call","api_id":"fetch_accounts","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Failed to fetch accounts"}},"stop_sequence":true}},{"step_id":"go_to_accounts","type":"navigate","target_screen_id":"account_list"}]}],"apis":[{"api_id":"fetch_bill_details","method":"POST","endpoint":"http://localhost:8888/response.json","headers":{"Content-Type":"application/json"},"request_mapping":{"customer_id":"context.bill.customer_id"},"response_mapping":{"context.bill.customer_name":"data.customerName","context.bill.bill_amount":"data.amount"}},{"api_id":"validate_customer","method":"POST","endpoint":"http://localhost:8888/validate_customer.json","headers":{"Content-Type":"application/json"},"request_mapping":{"customer_id":"context.bill.customer_id"},"response_mapping":{"context.validation.status":"data.status","context.last_error":"error"}},{"api_id":"fetch_billing_cycle","method":"GET","endpoint":"http://localhost:8888/billingCycle.json","response_mapping":{"context.bill.billing_cycle":"data.billingCycle"}},{"api_id":"fetch_outstanding_bill","method":"GET","endpoint":"http://localhost:8888/outstandingBill.json","response_mapping":{"context.bill.outstanding_amount":"data.outstandingAmount"}},{"api_id":"authorize_payment","method":"POST","endpoint":"http://localhost:8888/authorize_payment.json","headers":{"Content-Type":"application/json"},"request_mapping":{"pin":"context.bill.payment_pin"},"response_mapping":{"context.payment.auth_token":"data.token","context.payment.response_msg":"data.message","context.last_error":"error"}},{"api_id":"payment_call","method":"POST","endpoint":"http://localhost:8888/paymentResponse.json","headers":{"Content-Type":"application/json","Authorization":"Bearer {{context.payment.auth_token}}"},"request_mapping":{"customer_id":"context.bill.customer_id","account_no":"context.bill.account_number","amount":"context.bill.bill_amount"},"response_mapping":{"context.payment.response_msg":"data.message","context.last_error":"error"}},{"api_id":"fetch_customers","method":"GET","endpoint":"http://localhost:8888/customers.json","response_mapping":{"context.customer_search_results":"data"}},{"api_id":"fetch_accounts","method":"GET","endpoint":"http://localhost:8888/accounts.json","response_mapping":{"context.accounts":"data.accounts"}}]}]}
+
+class PluginJsondata {
+  PluginJsondata({
+    bool? success,
+    String? message,
+    Data? data,
+  }) {
+    _success = success;
+    _message = message;
+    _data = data;
+  }
+
+  PluginJsondata.fromJson(dynamic json) {
+    _success = json['success'];
+    _message = json['message'];
+    _data = json['data'] != null ? Data.fromJson(json['data']) : null;
+  }
+  bool? _success;
+  String? _message;
+  Data? _data;
+  PluginJsondata copyWith({
+    bool? success,
+    String? message,
+    Data? data,
+  }) =>
+      PluginJsondata(
+        success: success ?? _success,
+        message: message ?? _message,
+        data: data ?? _data,
+      );
+  bool? get success => _success;
+  String? get message => _message;
+  Data? get data => _data;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['success'] = _success;
+    map['message'] = _message;
+    if (_data != null) {
+      map['data'] = _data?.toJson();
+    }
+    return map;
+  }
+}
+
+/// plugins : [{"plugin_id":"payment_module","name":"Payment Module","description":"Multiple plugins for payments","type":"menu","icon":"https://example.com/icons/credit.png","children":[{"plugin_id":"bill_payment","display_name":"Bill Payment","description":"Pay utility or service bills"}]},{"plugin_id":"bill_payment","name":"Bill Payment","description":"This is the bill payment plugin","version":"1.0.0","type":"plugin","metadata":{"category":"payments","roles_allowed":["Admin","admin"],"default_route_id":"default"},"routes":[{"route_id":"default","entry_screen_id":"enter_customer"}],"screens":[{"screen_id":"enter_customer","title":{"en":"Customer Details","ar":"بيانات العميل"},"type":"form","on_load_action_id":null,"widgets":[{"widget_id":"customer_email","type":"textview","label":{"en":"Customer Email","ar":"بريد العميل"},"value_binding":"context.bill.customer_email"},{"widget_id":"customer_id_field","type":"text_input","name":"customer_id","label":{"en":"Customer ID","ar":"رقم العميل"},"placeholder":{"en":"Please enter your customer ID"},"required":true,"binds_to":"context.bill.customer_id"},{"widget_id":"fetch_bill_button","type":"button","label":{"en":"Fetch Bill"},"style":"primary","on_tap_action_id":"fetch_bill_flow"},{"widget_id":"search_customer_button","type":"button","label":{"en":"Search Customer"},"style":"secondary","on_tap_action_id":"load_customer_search"},{"widget_id":"my_accounts_button","type":"button","label":{"en":"My Accounts"},"style":"secondary","on_tap_action_id":"load_accounts"}]},{"screen_id":"bill_details","title":{"en":"Bill Details","ar":"تفاصيل الفاتورة"},"type":"details","widgets":[{"widget_id":"customer_name_label","type":"textview","label":{"en":"Customer Name","ar":"اسم العميل"},"value_binding":"context.bill.customer_name"},{"widget_id":"bill_amount_label","type":"textview","label":{"en":"Bill Amount","ar":"مبلغ الفاتورة"},"value_binding":"context.bill.bill_amount"},{"widget_id":"billing_cycle_label","type":"textview","label":{"en":"Billing Cycle","ar":"دورة الفواتير"},"value_binding":"context.bill.billing_cycle","id":"cycle_label"},{"widget_id":"proceed_payment_button","type":"button","label":{"en":"Proceed to Payment"},"style":"primary","on_tap_action_id":"go_to_enter_pin"}]},{"screen_id":"customer_search","title":{"en":"List of Customers","ar":"قائمة العملاء"},"type":"list","list_source":"context.customer_search_results","item_template":[{"widget_id":"customer_name_item","type":"textview","label":{"en":"Customer Name","ar":"اسم العميل"},"value_binding":"item.customer_name"},{"widget_id":"customer_id_item","type":"textview","label":{"en":"Customer ID","ar":"رقم العميل"},"value_binding":"item.customer_id"}],"item_tap_action_id":"select_customer_from_list"},{"screen_id":"account_list","title":{"en":"My Accounts","ar":"حساباتي"},"type":"list","list_source":"context.accounts","item_template":[{"widget_id":"account_name_item","type":"textview","label":{"en":"Account Name"},"value_binding":"item.account_name"},{"widget_id":"account_number_item","type":"textview","label":{"en":"Account Number"},"value_binding":"item.account_number"}],"item_tap_action_id":"select_account_from_list"},{"screen_id":"enter_pin","title":{"en":"Authorization","ar":"التفويض"},"type":"form","widgets":[{"widget_id":"summary_customer_id","type":"textview","label":{"en":"Customer ID"},"value_binding":"context.bill.customer_id"},{"widget_id":"summary_customer_name","type":"textview","label":{"en":"Customer Name"},"value_binding":"context.bill.customer_name"},{"widget_id":"summary_bill_amount","type":"textview","label":{"en":"Bill Amount"},"value_binding":"context.bill.bill_amount"},{"widget_id":"payment_pin_field","type":"pin","name":"payment_pin","label":{"en":"Enter 4-digit PIN"},"required":true,"minLength":4,"maxLength":4,"binds_to":"context.bill.payment_pin"},{"widget_id":"pay_now_button","type":"button","label":{"en":"Pay Now"},"style":"primary","on_tap_action_id":"pay_now_flow"}]},{"screen_id":"payment_result","title":{"en":"Payment Result","ar":"نتيجة الدفع"},"type":"status","widgets":[{"widget_id":"payment_result_message","type":"textview","label":{"en":"Status"},"value_binding":"context.payment.response_msg"},{"widget_id":"back_to_home_button","type":"button","label":{"en":"Back to Customer Screen"},"style":"secondary","on_tap_action_id":"back_to_enter_customer"}]},{"screen_id":"error_screen","title":{"en":"Error","ar":"خطأ"},"type":"status","widgets":[{"widget_id":"error_message","type":"textview","label":{"en":"Error"},"value_binding":"context.last_error"},{"widget_id":"error_back_button","type":"button","label":{"en":"Try Again"},"style":"secondary","on_tap_action_id":"back_to_enter_customer"}]}],"actions":[{"action_id":"fetch_bill_flow","type":"sequence","steps":[{"step_id":"call_fetch_bill","type":"api_call","api_id":"fetch_bill_details","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Unable to fetch bill. Please check the Customer ID."}},"stop_sequence":true}},{"step_id":"call_cycle_api","type":"api_call","api_id":"fetch_billing_cycle","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Unable to Fetch Bill Cycle"}},"stop_sequence":true}},{"step_id":"go_to_bill_details","type":"navigate","target_screen_id":"bill_details"}]},{"action_id":"go_to_customer_search","type":"navigate","target_screen_id":"customer_search"},{"action_id":"go_to_account_list","type":"navigate","target_screen_id":"account_list"},{"action_id":"select_customer_from_list","type":"sequence","steps":[{"step_id":"set_selected_customer","type":"context_update","mapping":{"context.bill.customer_id":"item.customer_id","context.bill.customer_name":"item.customer_name"}},{"step_id":"back_to_enter_customer","type":"navigate","target_screen_id":"enter_customer"}]},{"action_id":"select_account_from_list","type":"context_update","mapping":{"context.bill.account_number":"item.account_number","context.bill.account_name":"item.account_name"}},{"action_id":"go_to_enter_pin","type":"navigate","target_screen_id":"enter_pin"},{"action_id":"back_to_enter_customer","type":"navigate","target_screen_id":"enter_customer"},{"action_id":"pay_now_flow","type":"sequence","steps":[{"step_id":"validate_customer_step","type":"api_call","api_id":"validate_customer","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Customer validation failed"}},"navigate_to":"error_screen","stop_sequence":true}},{"step_id":"customer_validated_toast","type":"ui_feedback","feedback_type":"toast","message":{"en":"Customer validated"}},{"step_id":"fetch_billing_cycle_step","type":"api_call","api_id":"fetch_billing_cycle"},{"step_id":"update_billing_cycle_label","type":"label_update","target_widget_id":"cycle_label","value_binding":"context.bill.billing_cycle"},{"step_id":"fetch_outstanding_bill_step","type":"api_call","api_id":"fetch_outstanding_bill"},{"step_id":"call_authorize_payment","type":"api_call","api_id":"authorize_payment","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Authorization failed"}},"stop_sequence":true}},{"step_id":"show_bill_fetched_dialog","type":"ui_feedback","feedback_type":"dialog","title":{"en":"Bill Fetched"},"message":{"en":"Bill details updated successfully."}},{"step_id":"call_payment_execution","type":"api_call","api_id":"payment_call","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Payment failed"}},"navigate_to":"error_screen","stop_sequence":true}},{"step_id":"navigate_to_payment_result","type":"navigate","target_screen_id":"payment_result"}]},{"action_id":"load_customer_search","type":"sequence","steps":[{"step_id":"api_get_customers","type":"api_call","api_id":"fetch_customers","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Failed to fetch customers"}},"stop_sequence":true}},{"step_id":"go_to_customer_list","type":"navigate","target_screen_id":"customer_search"}]},{"action_id":"load_accounts","type":"sequence","steps":[{"step_id":"api_get_accounts","type":"api_call","api_id":"fetch_accounts","on_failure":{"ui_feedback":{"type":"snackbar","style":"error","message":{"en":"Failed to fetch accounts"}},"stop_sequence":true}},{"step_id":"go_to_accounts","type":"navigate","target_screen_id":"account_list"}]}],"apis":[{"api_id":"fetch_bill_details","method":"POST","endpoint":"http://localhost:8888/response.json","headers":{"Content-Type":"application/json"},"request_mapping":{"customer_id":"context.bill.customer_id"},"response_mapping":{"context.bill.customer_name":"data.customerName","context.bill.bill_amount":"data.amount"}},{"api_id":"validate_customer","method":"POST","endpoint":"http://localhost:8888/validate_customer.json","headers":{"Content-Type":"application/json"},"request_mapping":{"customer_id":"context.bill.customer_id"},"response_mapping":{"context.validation.status":"data.status","context.last_error":"error"}},{"api_id":"fetch_billing_cycle","method":"GET","endpoint":"http://localhost:8888/billingCycle.json","response_mapping":{"context.bill.billing_cycle":"data.billingCycle"}},{"api_id":"fetch_outstanding_bill","method":"GET","endpoint":"http://localhost:8888/outstandingBill.json","response_mapping":{"context.bill.outstanding_amount":"data.outstandingAmount"}},{"api_id":"authorize_payment","method":"POST","endpoint":"http://localhost:8888/authorize_payment.json","headers":{"Content-Type":"application/json"},"request_mapping":{"pin":"context.bill.payment_pin"},"response_mapping":{"context.payment.auth_token":"data.token","context.payment.response_msg":"data.message","context.last_error":"error"}},{"api_id":"payment_call","method":"POST","endpoint":"http://localhost:8888/paymentResponse.json","headers":{"Content-Type":"application/json","Authorization":"Bearer {{context.payment.auth_token}}"},"request_mapping":{"customer_id":"context.bill.customer_id","account_no":"context.bill.account_number","amount":"context.bill.bill_amount"},"response_mapping":{"context.payment.response_msg":"data.message","context.last_error":"error"}},{"api_id":"fetch_customers","method":"GET","endpoint":"http://localhost:8888/customers.json","response_mapping":{"context.customer_search_results":"data"}},{"api_id":"fetch_accounts","method":"GET","endpoint":"http://localhost:8888/accounts.json","response_mapping":{"context.accounts":"data.accounts"}}]}]
+
+class Data {
+  Data({
+    List<Plugins>? plugins,
+  }) {
+    _plugins = plugins;
+  }
+
+  Data.fromJson(dynamic json) {
+    if (json['plugins'] != null) {
+      _plugins = [];
+      json['plugins'].forEach((v) {
+        _plugins?.add(Plugins.fromJson(v));
+      });
+    }
+  }
+  List<Plugins>? _plugins;
+  Data copyWith({
+    List<Plugins>? plugins,
+  }) =>
+      Data(
+        plugins: plugins ?? _plugins,
+      );
+  List<Plugins>? get plugins => _plugins;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (_plugins != null) {
+      map['plugins'] = _plugins?.map((v) => v.toJson()).toList();
+    }
+    return map;
+  }
+}
+
+/// plugin_id : "payment_module"
+/// name : "Payment Module"
+/// description : "Multiple plugins for payments"
+/// type : "menu"
+/// icon : "https://example.com/icons/credit.png"
+/// children : [{"plugin_id":"bill_payment","display_name":"Bill Payment","description":"Pay utility or service bills"}]
+
+class Plugins {
+  Plugins({
+    String? pluginId,
+    String? name,
+    String? description,
+    String? type,
+    String? icon,
+    List<Children>? children,
+  }) {
+    _pluginId = pluginId;
+    _name = name;
+    _description = description;
+    _type = type;
+    _icon = icon;
+    _children = children;
+  }
+
+  Plugins.fromJson(dynamic json) {
+    _pluginId = json['plugin_id'];
+    _name = json['name'];
+    _description = json['description'];
+    _type = json['type'];
+    _icon = json['icon'];
+    if (json['children'] != null) {
+      _children = [];
+      json['children'].forEach((v) {
+        _children?.add(Children.fromJson(v));
+      });
+    }
+  }
+  String? _pluginId;
+  String? _name;
+  String? _description;
+  String? _type;
+  String? _icon;
+  List<Children>? _children;
+  Plugins copyWith({
+    String? pluginId,
+    String? name,
+    String? description,
+    String? type,
+    String? icon,
+    List<Children>? children,
+  }) =>
+      Plugins(
+        pluginId: pluginId ?? _pluginId,
+        name: name ?? _name,
+        description: description ?? _description,
+        type: type ?? _type,
+        icon: icon ?? _icon,
+        children: children ?? _children,
+      );
+  String? get pluginId => _pluginId;
+  String? get name => _name;
+  String? get description => _description;
+  String? get type => _type;
+  String? get icon => _icon;
+  List<Children>? get children => _children;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['plugin_id'] = _pluginId;
+    map['name'] = _name;
+    map['description'] = _description;
+    map['type'] = _type;
+    map['icon'] = _icon;
+    if (_children != null) {
+      map['children'] = _children?.map((v) => v.toJson()).toList();
+    }
+    return map;
+  }
+}
+
+/// plugin_id : "bill_payment"
+/// display_name : "Bill Payment"
+/// description : "Pay utility or service bills"
+
+class Children {
+  Children({
+    String? pluginId,
+    String? displayName,
+    String? description,
+  }) {
+    _pluginId = pluginId;
+    _displayName = displayName;
+    _description = description;
+  }
+
+  Children.fromJson(dynamic json) {
+    _pluginId = json['plugin_id'];
+    _displayName = json['display_name'];
+    _description = json['description'];
+  }
+  String? _pluginId;
+  String? _displayName;
+  String? _description;
+  Children copyWith({
+    String? pluginId,
+    String? displayName,
+    String? description,
+  }) =>
+      Children(
+        pluginId: pluginId ?? _pluginId,
+        displayName: displayName ?? _displayName,
+        description: description ?? _description,
+      );
+  String? get pluginId => _pluginId;
+  String? get displayName => _displayName;
+  String? get description => _description;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['plugin_id'] = _pluginId;
+    map['display_name'] = _displayName;
+    map['description'] = _description;
+    return map;
+  }
+}

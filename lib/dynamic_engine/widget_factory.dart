@@ -23,6 +23,7 @@ class WidgetFactory {
       Map<String, dynamic> field, DynamicContextStore ctx) {
     final controller = TextEditingController();
     final name = field['name']?.toString() ?? '';
+    //key value pair for the each text editing controller for each text field.
     controller.addListener(() {
       ctx.setValue(name, controller.text);
     });
