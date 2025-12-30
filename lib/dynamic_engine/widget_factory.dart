@@ -14,9 +14,54 @@ class WidgetFactory {
         return _buildPinField(field, ctx);
       case 'textview':
         return _buildTextView(field, ctx);
+      case 'dropdown':
+        return _buildDropdown(field, ctx);
       default:
         return Text('Unknown field type: $type');
     }
+  }
+
+  static Widget _buildDropdown(
+      Map<String, dynamic> field, DynamicContextStore ctx) {
+    final name = field['name']?.toString() ??
+        ''; // where selected value will be stored in ctx
+    final label = field['label']?.toString() ?? '';
+
+    // Support BOTH:
+    // A) static items: "items": [{"label":"Wallet","value":"wallet"}, ...]
+    // B) context items: "items_key": "accounts"  (ctx.getValue("accounts") returns List<Map>)
+    List<Map<String, dynamic>> items = [];
+
+    if (field['items'] is List) {
+      items = List<Map<String, dynamic>>.from(field['items']);
+    } else if (field['items_key'] != null) {
+      final list = ctx.getValue(field['items_key']!.toString());
+      if (list is List) {
+        items = list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      }
+    }
+
+    final itemLabelKey = field['item_label_key']?.toString() ?? 'label';
+    final itemValueKey = field['item_value_key']?.toString() ?? 'value';
+
+    final selected = ctx.getValue(name); // current selected value (can be null)
+
+    return DropdownButtonFormField<dynamic>(
+      value: selected,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
+      items: items.map((item) {
+        return DropdownMenuItem<dynamic>(
+          value: item[itemValueKey],
+          child: Text((item[itemLabelKey] ?? '').toString()),
+        );
+      }).toList(),
+      onChanged: (value) {
+        ctx.setValue(name, value);
+      },
+    );
   }
 
   static Widget _buildTextField(

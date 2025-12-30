@@ -224,6 +224,22 @@ class DynamicScreenRenderer extends StatelessWidget {
                 },
           child: Text(label),
         );
+      case 'dropdown':
+        final legacyField = <String, dynamic>{
+          'type': 'dropdown',
+          'name': widgetJson['name'], // where selected value will be stored
+          'label': _resolveLabel(widgetJson['label']),
+
+          // Support static items OR context-based items
+          'items': widgetJson['items'], // static list: [{label,value},...]
+          'items_key': widgetJson[
+              'items_source'], // context key: e.g. "context.accounts" or "accounts"
+
+          // Optional mapping keys for context items
+          'item_label_key': widgetJson['item_label_key'],
+          'item_value_key': widgetJson['item_value_key'],
+        };
+        return WidgetFactory.buildField(legacyField, navigation.contextStore);
 
       default:
         return Text('Unsupported widget type: $type');

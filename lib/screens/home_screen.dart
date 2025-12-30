@@ -34,9 +34,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        title: const Text('Banking Super App'),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        foregroundColor: Theme.of(context).colorScheme.surface,
+        // backgroundColor: Colors.blue,
+        title: const Text(
+          'Banking Super App',
+        ),
         actions: [IconButton(onPressed: _logout, icon: Icon(Icons.logout))],
       ),
       body: FutureBuilder<List<PluginNode>>(

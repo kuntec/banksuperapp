@@ -41,6 +41,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Center(
         child: Container(
+          margin: EdgeInsets.all(20),
           child: Text("Super Bank App"),
         ),
       ),

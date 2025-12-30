@@ -1,10 +1,21 @@
 // import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:superbankapp/models/theme_config.dart';
 import 'package:superbankapp/screens/splash_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:superbankapp/services/theme_service.dart';
 
 void main() async {
 //  await Firebase.initializeApp();
-  runApp(const MyApp());
+  //runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeService(
+        themeUrl: 'https://localhost:8888/theme.json',
+      )..loadFromCacheThenServer(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -13,13 +24,21 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final service = context.watch<ThemeService>();
+    final cfg = service.config;
+    // Fallback if not loaded yet
+    final light = cfg?.light ?? const {};
+    final dark = cfg?.dark ?? const {};
+
     return MaterialApp(
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
+        theme: buildThemeFromConfig(light, isDark: false),
+        darkTheme: buildThemeFromConfig(dark, isDark: true),
+        // theme: ThemeData(
+        //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        //   useMaterial3: true,
+        // ),
         home: SplashScreen());
   }
 }
